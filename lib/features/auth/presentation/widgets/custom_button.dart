@@ -1,9 +1,18 @@
+import 'package:ecommerce/features/auth/bloc/auth_bloc.dart';
+import 'package:ecommerce/features/auth/bloc/auth_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CustomButton extends StatelessWidget {
   final String title;
+  final bool isLoading;
   final VoidCallback onTap;
-  const CustomButton({super.key, required this.onTap, required this.title});
+  const CustomButton({
+    super.key,
+    required this.onTap,
+    required this.title,
+    required this.isLoading,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +25,15 @@ class CustomButton extends StatelessWidget {
         minimumSize: const Size(double.infinity, 48),
         shape: const StadiumBorder(),
       ),
-      child: Text(
-        title,
-        style: Theme.of(
-          context,
-        ).textTheme.titleMedium!.copyWith(color: Colors.white),
-      ),
+      child:
+          isLoading
+              ? Center(child: CircularProgressIndicator.adaptive())
+              : Text(
+                title,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium!.copyWith(color: Colors.white),
+              ),
     );
   }
 }

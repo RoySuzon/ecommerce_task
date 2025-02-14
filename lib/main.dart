@@ -1,12 +1,37 @@
+import 'package:ecommerce/core/services/secure_storage.dart';
+import 'package:ecommerce/features/auth/bloc/auth_bloc.dart';
+import 'package:ecommerce/features/auth/data/repository/auth_repository_imp.dart';
+import 'package:ecommerce/features/auth/domain/usecases/auth_use_case.dart';
 import 'package:ecommerce/features/auth/presentation/pages/login_page.dart';
+import 'package:ecommerce/features/dashboard/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final SecureStorageService secureStorageService = SecureStorageService();
+  final authRepo = AuthRepositoryImp();
+  final useCase = AuthUseCase(repo: authRepo);
+  final String? token = await secureStorageService.getToken();
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create:
+              (context) => AuthBloc(
+                useCase: useCase,
+                secureStorageService: secureStorageService,
+              ),
+        ),
+      ],
+      child: MyApp(isLogedin: token != null),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isLogedin;
+  const MyApp({super.key, required this.isLogedin});
 
   // This widget is the root of your application.
   @override
@@ -29,7 +54,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: LoginPage(),
+      home: isLogedin ? HomePage() : LoginPage(),
     );
   }
 }
