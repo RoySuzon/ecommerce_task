@@ -21,10 +21,8 @@ class LoginLoading extends AuthState {
 }
 
 class LoginSuccess extends AuthState {
- final  String message;
-  const LoginSuccess({
-    required this.message,
-  });
+  final String message;
+  const LoginSuccess({required this.message});
   @override
   List<Object> get props => [message];
 }
@@ -32,6 +30,15 @@ class LoginSuccess extends AuthState {
 class LoginFailed extends AuthState {
   final Failure failure;
   const LoginFailed({required this.failure});
+  @override
+  List<Object> get props => [failure];
+}
+
+class LogoutSuccess extends AuthState {}
+
+class LogoutFaild extends AuthState {
+  final Failure failure;
+  const LogoutFaild({required this.failure});
   @override
   List<Object> get props => [failure];
 }

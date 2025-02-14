@@ -10,7 +10,7 @@ class AuthUseCase {
   Future<Either<Failure, dynamic>> loginUseCase(
     String email,
     String password,
-  ) async {
-    return repo.login(email, password);
-  }
+  ) async => repo.login(email, password);
+
+  Future<bool> logoutUseCase() async => await repo.logout();
 }

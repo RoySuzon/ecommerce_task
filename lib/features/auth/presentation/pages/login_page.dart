@@ -1,9 +1,8 @@
 import 'package:ecommerce/features/auth/bloc/auth_bloc.dart';
 import 'package:ecommerce/features/auth/bloc/auth_event.dart';
 import 'package:ecommerce/features/auth/bloc/auth_state.dart';
-import 'package:ecommerce/features/auth/data/repository/auth_repository_imp.dart';
 import 'package:ecommerce/features/auth/presentation/widgets/custom_button.dart';
-import 'package:ecommerce/features/dashboard/presentation/pages/home_page.dart';
+import 'package:ecommerce/features/home/presentation/pages/home_page.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

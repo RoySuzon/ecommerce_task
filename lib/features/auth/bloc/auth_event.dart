@@ -16,9 +16,4 @@ class AuthLoginEvent extends AuthEvent {
   List<Object> get props => [email, passaword];
 }
 
-class AuthLogoutEvent extends AuthEvent {
-  final String token;
-  const AuthLogoutEvent({required this.token});
-  @override
-  List<Object> get props => [token];
-}
+class AuthLogoutEvent extends AuthEvent {}

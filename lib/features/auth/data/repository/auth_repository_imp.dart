@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:dartz/dartz.dart';
 import 'package:ecommerce/common/api_endpoint.dart';
@@ -11,8 +12,21 @@ class AuthRepositoryImp implements AuthRepository {
   final HttpManager _httpManager = HttpManager();
   final secureStorageService = SecureStorageService();
   @override
-  Future<bool> logOut(String token) {
-    throw UnimplementedError();
+  Future<bool> logout() async {
+    final response = await _httpManager.request(
+      HttpMethod.POST,
+      ApiEndPoint.logOut,
+    );
+    try {
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      log(e.toString());
+      return false;
+    }
   }
 
   @override
