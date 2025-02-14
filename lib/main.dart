@@ -1,3 +1,4 @@
+import 'package:ecommerce/features/auth/presentation/pages/login_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -11,12 +12,24 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Ecommerce',
       theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
 
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Color(0xFFFCF5F5),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 16.0 * 1.5,
+            vertical: 16.0,
+          ),
+          border: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            // borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
+        ),
       ),
-      home: Scaffold(),
+      home: LoginPage(),
     );
   }
 }
