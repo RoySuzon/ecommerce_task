@@ -14,9 +14,9 @@ class Dependency {
       () => CartRepositoryImpl(injection()),
     );
     //Auth Reponsitory
-    injection.registerLazySingleton<AuthRepository>(() => AuthRepositoryMock());
+    injection.registerLazySingleton<AuthRepository>(() => AuthRepositoryImp());
 
     //Home Reponsitory
-    injection.registerLazySingleton<HomeRepository>(() => HomeRepositoryMock());
+    injection.registerLazySingleton<HomeRepository>(() => HomeRepositoryImp());
   }
 }

@@ -22,51 +22,50 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: RepositoryProvider<HomeBloc>(
-          create:
-              (context) =>
-                  HomeBloc(HomeUseCase(repo: Dependency.injection()))
-                    ..add(ProductsEvent()),
-          child: BlocConsumer<HomeBloc, HomeState>(
-            // bloc: HomeBloc(HomeUseCase(repo: HomeRepositoryImp()))
-            //   ..add(ProductsEvent()),
-            listener: (context, state) {},
-            builder: (context, state) {
-              if (state is ProductsLoading) {
-                return Center(child: CircularProgressIndicator.adaptive());
-              } else if (state is ProductsLoaded) {
-                return ListView.builder(
-                  itemBuilder: (context, index) {
-                    final product = state.products[index];
-                    return ProductTile(product: product);
-                    // return ListTile(
-                    //   title: Text(product.name ?? ""),
-                    //   trailing: IconButton(
-                    //     onPressed:
-                    //         () => context.read<CartBloc>().add(
-                    //           AddToCartEvent(product: product, quantity: 5),
-                    //         ),
-                    //     icon: Icon(Icons.add),
-                    //   ),
-                    //   leading: IconButton(
-                    //     onPressed:
-                    //         () => context.read<CartBloc>().add(
-                    //           RemoveFromCartEvent(
-                    //             productId: product.id.toString(),
-                    //           ),
-                    //         ),
-                    //     icon: Icon(Icons.remove),
-                    //   ),
-                    // );
-                  },
-                  itemCount: state.products.length,
-                );
-              } else {
-                return SizedBox();
-              }
-            },
-          ),
+      appBar: AppBar(title: Text('Home')),
+      body: RepositoryProvider<HomeBloc>(
+        create:
+            (context) =>
+                HomeBloc(HomeUseCase(repo: Dependency.injection()))
+                  ..add(ProductsEvent()),
+        child: BlocConsumer<HomeBloc, HomeState>(
+          // bloc: HomeBloc(HomeUseCase(repo: HomeRepositoryImp()))
+          //   ..add(ProductsEvent()),
+          listener: (context, state) {},
+          builder: (context, state) {
+            if (state is ProductsLoading) {
+              return Center(child: CircularProgressIndicator.adaptive());
+            } else if (state is ProductsLoaded) {
+              return ListView.builder(
+                itemBuilder: (context, index) {
+                  final product = state.products[index];
+                  return ProductTile(product: product);
+                  // return ListTile(
+                  //   title: Text(product.name ?? ""),
+                  //   trailing: IconButton(
+                  //     onPressed:
+                  //         () => context.read<CartBloc>().add(
+                  //           AddToCartEvent(product: product, quantity: 5),
+                  //         ),
+                  //     icon: Icon(Icons.add),
+                  //   ),
+                  //   leading: IconButton(
+                  //     onPressed:
+                  //         () => context.read<CartBloc>().add(
+                  //           RemoveFromCartEvent(
+                  //             productId: product.id.toString(),
+                  //           ),
+                  //         ),
+                  //     icon: Icon(Icons.remove),
+                  //   ),
+                  // );
+                },
+                itemCount: state.products.length,
+              );
+            } else {
+              return SizedBox();
+            }
+          },
         ),
       ),
       floatingActionButton: BlocListener<AuthBloc, AuthState>(
@@ -102,6 +101,7 @@ class HomePage extends StatelessWidget {
         ),
       ),
       bottomSheet: Container(
+        width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(20),
@@ -110,13 +110,25 @@ class HomePage extends StatelessWidget {
           color: Colors.green,
         ),
         child: Padding(
-          padding: const EdgeInsets.only(bottom: kBottomNavigationBarHeight),
+          padding: const EdgeInsets.only(bottom: 0),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             child: BlocBuilder<CartBloc, CartState>(
               builder: (context, state) {
                 if (state is CartLoaded) {
-                  return Text("Total Items: ${state.cartItems.length}");
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text("Total Items: ${state.cartItems.length}"),
+
+                      IconButton(
+                        onPressed: () {
+                          showCartItemsDialog(context, state.cartItems);
+                        },
+                        icon: Icon(Icons.add),
+                      ),
+                    ],
+                  );
                 }
                 return Text("Cart is empty");
               },
@@ -126,6 +138,78 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+}
+
+void showCartItemDialog(BuildContext context, CartItem item) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(item.product.name ?? ""),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text("Quantity: ${item.quantity}"),
+            Text("Price: \$${item.product.price.toStringAsFixed(2)}"),
+            Divider(),
+            Text(
+              "Subtotal: \$${item.totalCost.toStringAsFixed(2)}",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Close"),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void showCartItemsDialog(BuildContext context, List<CartItem> cartItems) {
+  showDialog(
+    context: context,
+    builder:
+        (context) => AlertDialog(
+          content: SizedBox(
+            height: 400,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  ...List.generate(cartItems.length, (index) {
+                    CartItem item = cartItems[index];
+                    return Card(
+                      child: ListTile(
+                        title: Text(item.product.name ?? ""),
+                        subtitle: Text(
+                          "Quantity: ${item.quantity} | Price: \$${item.product.price}",
+                        ),
+                        trailing: Text(
+                          "Subtotal: \$${item.totalCost.toStringAsFixed(2)}",
+                        ),
+                        onTap: () => showCartItemDialog(context, item),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+  );
 }
 
 class ProductTile extends StatelessWidget {
@@ -149,6 +233,8 @@ class ProductTile extends StatelessWidget {
                 Text(
                   product.name ?? "",
                   style: Theme.of(context).textTheme.titleMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   "\$${product.price.toStringAsFixed(2)}",
@@ -241,7 +327,7 @@ class ProductTile extends StatelessWidget {
                             AddToCartEvent(product: product, quantity: 1),
                           );
                         },
-                        child: const Text("Add to Cart"),
+                        child: const Icon(Icons.shopping_bag_outlined),
                       );
                 }
                 return const CircularProgressIndicator();

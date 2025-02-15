@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
@@ -24,7 +25,7 @@ class CustomButton extends StatelessWidget {
       ),
       child:
           isLoading
-              ? Center(child: CircularProgressIndicator.adaptive())
+              ? Center(child: CupertinoActivityIndicator())
               : Text(
                 title,
                 style: Theme.of(
