@@ -55,7 +55,142 @@ class HomePage extends StatelessWidget {
               return ListView.builder(
                 itemBuilder: (context, index) {
                   final product = state.products[index];
-                  return ProductTile(product: product);
+                  return Card(
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Product Info
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                product.name ?? "",
+                                style: Theme.of(context).textTheme.titleMedium,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                "\$${product.price.toStringAsFixed(2)}",
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ],
+                          ),
+
+                          // Cart Controls (Add/Increment/Decrement)
+                          BlocConsumer<CartBloc, CartState>(
+                            listenWhen: (previous, current) {
+                              // Listen only when a specific product's quantity changes
+                              if (previous is CartLoaded &&
+                                  current is CartLoaded) {
+                                final prevItem =
+                                    previous.cartItems.firstWhereOrNull(
+                                  (item) => item.product.id == product.id,
+                                );
+                                final currItem =
+                                    current.cartItems.firstWhereOrNull(
+                                  (item) => item.product.id == product.id,
+                                );
+                                return prevItem?.quantity != currItem?.quantity;
+                              }
+                              return false;
+                            },
+                            buildWhen: (previous, current) {
+                              // Only rebuild if this specific product’s quantity changes
+                              if (previous is CartLoaded &&
+                                  current is CartLoaded) {
+                                final prevItem =
+                                    previous.cartItems.firstWhereOrNull(
+                                  (item) => item.product.id == product.id,
+                                );
+                                final currItem =
+                                    current.cartItems.firstWhereOrNull(
+                                  (item) => item.product.id == product.id,
+                                );
+                                return prevItem?.quantity != currItem?.quantity;
+                              }
+                              return false;
+                            },
+                            builder: (context, state) {
+                              if (state is CartLoaded) {
+                                final cartItem = state.cartItems.firstWhere(
+                                  (item) => item.product.id == product.id,
+                                  orElse: () =>
+                                      CartItem(product: product, quantity: 0),
+                                );
+
+                                return cartItem.quantity > 0
+                                    ? Row(
+                                        children: [
+                                          IconButton(
+                                            onPressed: () {
+                                              if (cartItem.quantity > 1) {
+                                                context.read<CartBloc>().add(
+                                                      DecrementQuantityEvent(
+                                                        productId: product.id
+                                                            .toString(),
+                                                      ),
+                                                    );
+                                              } else {
+                                                context.read<CartBloc>().add(
+                                                      RemoveFromCartEvent(
+                                                        productId: product.id
+                                                            .toString(),
+                                                      ),
+                                                    );
+                                              }
+                                            },
+                                            icon: const Icon(
+                                              Icons.remove_circle,
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                          Text(
+                                            cartItem.quantity.toString(),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium,
+                                          ),
+                                          IconButton(
+                                            onPressed: () {
+                                              context.read<CartBloc>().add(
+                                                    IncrementQuantityEvent(
+                                                      productId:
+                                                          product.id.toString(),
+                                                    ),
+                                                  );
+                                            },
+                                            icon: const Icon(
+                                              Icons.add_circle,
+                                              color: Colors.green,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : ElevatedButton(
+                                        onPressed: () {
+                                          context.read<CartBloc>().add(
+                                                AddToCartEvent(
+                                                    product: product,
+                                                    quantity: 1),
+                                              );
+                                        },
+                                        child: const Icon(
+                                            Icons.shopping_bag_outlined),
+                                      );
+                              }
+                              return const CircularProgressIndicator();
+                            },
+                            listener:
+                                (BuildContext context, CartState state) {},
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                   // return ListTile(
                   //   title: Text(product.name ?? ""),
                   //   trailing: IconButton(
