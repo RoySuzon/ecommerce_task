@@ -32,3 +32,13 @@ class RemoveFromCart implements UseCase<void, String> {
     return repository.removeFromCart(productId);
   }
 }
+
+class UpdateCartItemQuantity {
+  final CartRepository repository;
+
+  UpdateCartItemQuantity({required this.repository});
+
+  Future<void> call(CartItem cartItem) async {
+    return repository.updateCartItemQuantity(cartItem);
+  }
+}

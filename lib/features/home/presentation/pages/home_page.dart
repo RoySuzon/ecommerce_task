@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+import 'package:ecommerce/core/dependency_injection/dependency.dart';
 import 'package:ecommerce/features/auth/bloc/auth_bloc.dart';
 import 'package:ecommerce/features/auth/bloc/auth_event.dart';
 import 'package:ecommerce/features/auth/bloc/auth_state.dart';
@@ -5,11 +7,11 @@ import 'package:ecommerce/features/auth/presentation/pages/login_page.dart';
 import 'package:ecommerce/features/cart/bloc/cart_bloc.dart';
 import 'package:ecommerce/features/cart/bloc/cart_event.dart';
 import 'package:ecommerce/features/cart/bloc/cart_state.dart';
+import 'package:ecommerce/features/cart/data/models/cart_item.dart';
 import 'package:ecommerce/features/home/bloc/home_bloc.dart';
 import 'package:ecommerce/features/home/bloc/home_event.dart';
 import 'package:ecommerce/features/home/bloc/home_state.dart';
 import 'package:ecommerce/features/home/data/models/product_model.dart';
-import 'package:ecommerce/features/home/data/repository/home_repository_imp.dart';
 import 'package:ecommerce/features/home/domain/usecases/home_use_case.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,7 +26,7 @@ class HomePage extends StatelessWidget {
         child: RepositoryProvider<HomeBloc>(
           create:
               (context) =>
-                  HomeBloc(HomeUseCase(repo: HomeRepositoryImp()))
+                  HomeBloc(HomeUseCase(repo: Dependency.injection()))
                     ..add(ProductsEvent()),
           child: BlocConsumer<HomeBloc, HomeState>(
             // bloc: HomeBloc(HomeUseCase(repo: HomeRepositoryImp()))
@@ -126,51 +128,125 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class ProductTile extends StatefulWidget {
+class ProductTile extends StatelessWidget {
   final ProductModel product;
+
   const ProductTile({super.key, required this.product});
-
-  @override
-  State createState() => _ProductTileState();
-}
-
-class _ProductTileState extends State<ProductTile> {
-  int quantity = 1;
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: ListTile(
-        title: Text(widget.product.name ?? ""),
-        subtitle: Text("\$${widget.product.price}"),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            IconButton(
-              icon: Icon(Icons.remove),
-              onPressed: () {
-                if (quantity > 1) setState(() => quantity--);
-              },
+            // Product Info
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product.name ?? "",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                Text(
+                  "\$${product.price.toStringAsFixed(2)}",
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
             ),
-            Text(quantity.toString()),
-            IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () {
-                setState(() => quantity++);
+
+            // Cart Controls (Add/Increment/Decrement)
+            BlocConsumer<CartBloc, CartState>(
+              listenWhen: (previous, current) {
+                // Listen only when a specific product's quantity changes
+                if (previous is CartLoaded && current is CartLoaded) {
+                  final prevItem = previous.cartItems.firstWhereOrNull(
+                    (item) => item.product.id == product.id,
+                  );
+                  final currItem = current.cartItems.firstWhereOrNull(
+                    (item) => item.product.id == product.id,
+                  );
+                  return prevItem?.quantity != currItem?.quantity;
+                }
+                return false;
               },
-            ),
-            IconButton(
-              icon: Icon(Icons.add_shopping_cart, color: Colors.green),
-              onPressed: () {
-                context.read<CartBloc>().add(
-                  AddToCartEvent(product: widget.product, quantity: quantity),
-                );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("${widget.product.name} added to cart!"),
-                  ),
-                );
+              buildWhen: (previous, current) {
+                // Only rebuild if this specific product’s quantity changes
+                if (previous is CartLoaded && current is CartLoaded) {
+                  final prevItem = previous.cartItems.firstWhereOrNull(
+                    (item) => item.product.id == product.id,
+                  );
+                  final currItem = current.cartItems.firstWhereOrNull(
+                    (item) => item.product.id == product.id,
+                  );
+                  return prevItem?.quantity != currItem?.quantity;
+                }
+                return false;
               },
+              builder: (context, state) {
+                if (state is CartLoaded) {
+                  final cartItem = state.cartItems.firstWhere(
+                    (item) => item.product.id == product.id,
+                    orElse: () => CartItem(product: product, quantity: 0),
+                  );
+
+                  return cartItem.quantity > 0
+                      ? Row(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              if (cartItem.quantity > 1) {
+                                context.read<CartBloc>().add(
+                                  DecrementQuantityEvent(
+                                    productId: product.id.toString(),
+                                  ),
+                                );
+                              } else {
+                                context.read<CartBloc>().add(
+                                  RemoveFromCartEvent(
+                                    productId: product.id.toString(),
+                                  ),
+                                );
+                              }
+                            },
+                            icon: const Icon(
+                              Icons.remove_circle,
+                              color: Colors.red,
+                            ),
+                          ),
+                          Text(
+                            cartItem.quantity.toString(),
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              context.read<CartBloc>().add(
+                                IncrementQuantityEvent(
+                                  productId: product.id.toString(),
+                                ),
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.add_circle,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ],
+                      )
+                      : ElevatedButton(
+                        onPressed: () {
+                          context.read<CartBloc>().add(
+                            AddToCartEvent(product: product, quantity: 1),
+                          );
+                        },
+                        child: const Text("Add to Cart"),
+                      );
+                }
+                return const CircularProgressIndicator();
+              },
+              listener: (BuildContext context, CartState state) {},
             ),
           ],
         ),
