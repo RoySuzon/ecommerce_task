@@ -13,7 +13,7 @@ class ProductModel {
     String? code;
     String? name;
     int? unitId;
-    String? price;
+    double price;
     String? secondaryPrice;
     String? sku;
     String? packSize;
@@ -47,7 +47,7 @@ class ProductModel {
         this.code,
         this.name,
         this.unitId,
-        this.price,
+         this.price = 0,
         this.secondaryPrice,
         this.sku,
         this.packSize,
@@ -82,7 +82,7 @@ class ProductModel {
         code: json["code"],
         name: json["name"],
         unitId: json["unit_id"],
-        price: json["price"],
+        price: double.tryParse(json["price"])!.toDouble(),
         secondaryPrice: json["secondary_price"],
         sku: json["sku"],
         packSize: json["pack_size"],
@@ -117,7 +117,7 @@ class ProductModel {
         "code": code,
         "name": name,
         "unit_id": unitId,
-        "price": price,
+        "price": price.toString(),
         "secondary_price": secondaryPrice,
         "sku": sku,
         "pack_size": packSize,

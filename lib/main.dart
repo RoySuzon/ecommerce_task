@@ -3,9 +3,10 @@ import 'package:ecommerce/features/auth/bloc/auth_bloc.dart';
 import 'package:ecommerce/features/auth/data/repository/auth_repository_imp.dart';
 import 'package:ecommerce/features/auth/domain/usecases/auth_use_case.dart';
 import 'package:ecommerce/features/auth/presentation/pages/login_page.dart';
-import 'package:ecommerce/features/home/bloc/home_bloc.dart';
-import 'package:ecommerce/features/home/data/repository/home_repository_imp.dart';
-import 'package:ecommerce/features/home/domain/usecases/home_use_case.dart';
+import 'package:ecommerce/features/cart/bloc/cart_bloc.dart';
+import 'package:ecommerce/features/cart/bloc/cart_event.dart';
+import 'package:ecommerce/features/cart/data/repository/cart_repository_imp.dart';
+import 'package:ecommerce/features/cart/domain/usecases/add_to_cart_user_case.dart';
 import 'package:ecommerce/features/home/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,6 +14,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final SecureStorageService secureStorageService = SecureStorageService();
+  // final cartRepository = CartRepositoryImpl();
+  final cartRepository = CartRepositoryMock();
   final authRepo = AuthRepositoryImp();
   final useCase = AuthUseCase(repo: authRepo);
   final String? token = await secureStorageService.getToken();
@@ -25,6 +28,13 @@ void main() async {
                 useCase: useCase,
                 secureStorageService: secureStorageService,
               ),
+        ),
+         BlocProvider(
+          create: (context) => CartBloc(
+            addToCart: AddToCart(cartRepository),
+            removeFromCart: RemoveFromCart(cartRepository),
+            getCartItems: GetCartItems(cartRepository),
+          )..add(LoadCartEvent()),
         ),
         // BlocProvider(
         //   create: (context) => HomeBloc(HomeUseCase(repo: HomeRepositoryImp())),
