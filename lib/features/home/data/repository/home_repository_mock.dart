@@ -8,7 +8,7 @@ import 'package:ecommerce/features/home/domain/repository/home_repository.dart';
 class HomeRepositoryMock implements HomeRepository {
   @override
   Future<Either<Failure, List<ProductModel>>> products() async {
-    await Future.delayed(Duration(seconds: 5));
+    await Future.delayed(Duration(seconds: 1));
 
     return Right(productFromJson(jsonEncode(data)));
   }

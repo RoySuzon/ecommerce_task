@@ -5,7 +5,10 @@ import 'package:ecommerce/features/auth/domain/usecases/auth_use_case.dart';
 import 'package:ecommerce/features/auth/presentation/pages/login_page.dart';
 import 'package:ecommerce/features/cart/bloc/cart_bloc.dart';
 import 'package:ecommerce/features/cart/bloc/cart_event.dart';
-import 'package:ecommerce/features/cart/domain/usecases/add_to_cart_user_case.dart';
+import 'package:ecommerce/features/cart/domain/usecases/add_to_cart.dart';
+import 'package:ecommerce/features/cart/domain/usecases/get_cart_items.dart';
+import 'package:ecommerce/features/cart/domain/usecases/remove_from_cart.dart';
+import 'package:ecommerce/features/cart/domain/usecases/update_cart_item_quantity.dart';
 import 'package:ecommerce/features/home/bloc/home_bloc.dart';
 import 'package:ecommerce/features/home/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
@@ -21,33 +24,31 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(
-          create:
-              (context) => AuthBloc(
-                useCase: useCase,
-                secureStorageService: secureStorageService,
-              ),
+          create: (context) => AuthBloc(
+            useCase: useCase,
+            secureStorageService: secureStorageService,
+          ),
         ),
         BlocProvider(
-          create:
-              (context) => CartBloc(
-                addToCart: AddToCart(Dependency.injection()),
-                removeFromCart: RemoveFromCart(Dependency.injection()),
-                getCartItems: GetCartItems(Dependency.injection()),
-                updateCartItemQuantity: UpdateCartItemQuantity(
-                  repository: Dependency.injection(),
-                ),
-              )..add(LoadCartEvent()),
+          create: (context) => CartBloc(
+            addToCart: AddToCart(Dependency.injection()),
+            removeFromCart: RemoveFromCart(Dependency.injection()),
+            getCartItems: GetCartItems(Dependency.injection()),
+            updateCartItemQuantity: UpdateCartItemQuantity(
+              repository: Dependency.injection(),
+            ),
+          )..add(LoadCartEvent()),
         ),
         BlocProvider(create: (context) => HomeBloc(Dependency.injection())),
       ],
-      child: MyApp(isLogedin: token != null),
+      child: MyApp(isLogin: token != null),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  final bool isLogedin;
-  const MyApp({super.key, required this.isLogedin});
+  final bool isLogin;
+  const MyApp({super.key, required this.isLogin});
 
   // This widget is the root of your application.
   @override
@@ -56,7 +57,6 @@ class MyApp extends StatelessWidget {
       title: 'Ecommerce',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Color(0xFFFCF5F5),
@@ -70,7 +70,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: isLogedin ? HomePage() : LoginPage(),
+      home: isLogin ? HomePage() : LoginPage(),
     );
   }
 }

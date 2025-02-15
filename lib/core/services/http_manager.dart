@@ -64,7 +64,11 @@ class HttpManager {
     }
 
     log("Response Status: ${response.statusCode}");
-    log("Response Body: ${response.body}");
+    if (response.statusCode == 200) {
+      log("Response Body: ${response.body}");
+    } else {
+      log("Something went wrong!");
+    }
 
     return response;
   }

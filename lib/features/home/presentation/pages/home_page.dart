@@ -24,14 +24,30 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Home')),
       body: RepositoryProvider<HomeBloc>(
-        create:
-            (context) =>
-                HomeBloc(HomeUseCase(repo: Dependency.injection()))
-                  ..add(ProductsEvent()),
+        create: (context) => HomeBloc(HomeUseCase(repo: Dependency.injection()))
+          ..add(ProductsEvent()),
         child: BlocConsumer<HomeBloc, HomeState>(
           // bloc: HomeBloc(HomeUseCase(repo: HomeRepositoryImp()))
           //   ..add(ProductsEvent()),
-          listener: (context, state) {},
+          listener: (context, state) {
+            if (state is ProductsFaild) {
+              ScaffoldMessenger.of(context)
+                ..removeCurrentSnackBar()
+                ..showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      state.failure.message,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleLarge!.copyWith(color: Colors.white),
+                    ),
+                    showCloseIcon: true,
+                    duration: Duration(seconds: 5),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+            }
+          },
           builder: (context, state) {
             if (state is ProductsLoading) {
               return Center(child: CircularProgressIndicator.adaptive());
@@ -107,7 +123,7 @@ class HomePage extends StatelessWidget {
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
           ),
-          color: Colors.green,
+          color: Colors.grey,
         ),
         child: Padding(
           padding: const EdgeInsets.only(bottom: 0),
@@ -119,13 +135,15 @@ class HomePage extends StatelessWidget {
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text("Total Items: ${state.cartItems.length}"),
-
-                      IconButton(
+                      Text("মোটঃ ${state.cartItems.fold(
+                        0.0,
+                        (sum, item) => sum + item.totalCost,
+                      )}"),
+                      ElevatedButton(
                         onPressed: () {
                           showCartItemsDialog(context, state.cartItems);
                         },
-                        icon: Icon(Icons.add),
+                        child: Text("অর্ডার করুন"),
                       ),
                     ],
                   );
@@ -172,43 +190,42 @@ void showCartItemDialog(BuildContext context, CartItem item) {
 void showCartItemsDialog(BuildContext context, List<CartItem> cartItems) {
   showDialog(
     context: context,
-    builder:
-        (context) => AlertDialog(
-          content: SizedBox(
-            height: 400,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  ...List.generate(cartItems.length, (index) {
-                    CartItem item = cartItems[index];
-                    return Card(
-                      child: ListTile(
-                        title: Text(item.product.name ?? ""),
-                        subtitle: Text(
-                          "Quantity: ${item.quantity} | Price: \$${item.product.price}",
-                        ),
-                        trailing: Text(
-                          "Subtotal: \$${item.totalCost.toStringAsFixed(2)}",
-                        ),
-                        onTap: () => showCartItemDialog(context, item),
-                      ),
-                    );
-                  }),
-                ],
-              ),
-            ),
+    builder: (context) => AlertDialog(
+      content: SizedBox(
+        height: 400,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              ...List.generate(cartItems.length, (index) {
+                CartItem item = cartItems[index];
+                return Card(
+                  child: ListTile(
+                    title: Text(item.product.name ?? ""),
+                    subtitle: Text(
+                      "Quantity: ${item.quantity} | Price: \$${item.product.price}",
+                    ),
+                    trailing: Text(
+                      "Subtotal: \$${item.totalCost.toStringAsFixed(2)}",
+                    ),
+                    onTap: () => showCartItemDialog(context, item),
+                  ),
+                );
+              }),
+            ],
           ),
-          actions: [
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
-            ),
-          ],
         ),
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('OK'),
+        ),
+      ],
+    ),
   );
 }
 
@@ -280,55 +297,55 @@ class ProductTile extends StatelessWidget {
 
                   return cartItem.quantity > 0
                       ? Row(
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              if (cartItem.quantity > 1) {
-                                context.read<CartBloc>().add(
-                                  DecrementQuantityEvent(
-                                    productId: product.id.toString(),
-                                  ),
-                                );
-                              } else {
-                                context.read<CartBloc>().add(
-                                  RemoveFromCartEvent(
-                                    productId: product.id.toString(),
-                                  ),
-                                );
-                              }
-                            },
-                            icon: const Icon(
-                              Icons.remove_circle,
-                              color: Colors.red,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                if (cartItem.quantity > 1) {
+                                  context.read<CartBloc>().add(
+                                        DecrementQuantityEvent(
+                                          productId: product.id.toString(),
+                                        ),
+                                      );
+                                } else {
+                                  context.read<CartBloc>().add(
+                                        RemoveFromCartEvent(
+                                          productId: product.id.toString(),
+                                        ),
+                                      );
+                                }
+                              },
+                              icon: const Icon(
+                                Icons.remove_circle,
+                                color: Colors.red,
+                              ),
                             ),
-                          ),
-                          Text(
-                            cartItem.quantity.toString(),
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              context.read<CartBloc>().add(
-                                IncrementQuantityEvent(
-                                  productId: product.id.toString(),
-                                ),
-                              );
-                            },
-                            icon: const Icon(
-                              Icons.add_circle,
-                              color: Colors.green,
+                            Text(
+                              cartItem.quantity.toString(),
+                              style: Theme.of(context).textTheme.titleMedium,
                             ),
-                          ),
-                        ],
-                      )
+                            IconButton(
+                              onPressed: () {
+                                context.read<CartBloc>().add(
+                                      IncrementQuantityEvent(
+                                        productId: product.id.toString(),
+                                      ),
+                                    );
+                              },
+                              icon: const Icon(
+                                Icons.add_circle,
+                                color: Colors.green,
+                              ),
+                            ),
+                          ],
+                        )
                       : ElevatedButton(
-                        onPressed: () {
-                          context.read<CartBloc>().add(
-                            AddToCartEvent(product: product, quantity: 1),
-                          );
-                        },
-                        child: const Icon(Icons.shopping_bag_outlined),
-                      );
+                          onPressed: () {
+                            context.read<CartBloc>().add(
+                                  AddToCartEvent(product: product, quantity: 1),
+                                );
+                          },
+                          child: const Icon(Icons.shopping_bag_outlined),
+                        );
                 }
                 return const CircularProgressIndicator();
               },

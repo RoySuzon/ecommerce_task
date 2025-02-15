@@ -5,6 +5,7 @@ import 'package:ecommerce/features/home/bloc/home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final HomeUseCase repo;
+
   HomeBloc(this.repo) : super(HomeInitial()) {
     on<ProductsEvent>((event, emit) async {
       emit(ProductsLoading());

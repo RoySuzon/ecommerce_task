@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:dartz/dartz.dart';
 import 'package:ecommerce/common/api_endpoint.dart';
 import 'package:ecommerce/core/error/failure.dart';
@@ -19,7 +17,7 @@ class HomeRepositoryImp implements HomeRepository {
       if (response.statusCode == 200) {
         return Right(productFromJson(response.body));
       } else {
-        return Left(Failure("Something going wrong!"));
+        return Left(Failure("Something going wrong!\n"));
       }
     } catch (e) {
       return Left(Failure(e.toString()));
