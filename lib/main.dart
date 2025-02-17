@@ -55,7 +55,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Ecommerce',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+        useMaterial3: false,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Color(0xFFFCF5F5),
