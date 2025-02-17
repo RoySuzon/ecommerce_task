@@ -8,8 +8,8 @@ class Dependency {
 
   static GetIt injection = GetIt.instance;
 
-  static dependencyServicesLocator() {
-    injection.registerLazySingleton<SecureStorageService>(
+  static void dependencyServicesLocator() {
+    injection.registerLazySingleton<TokenServices>(
       () => SecureStorageService(),
     );
     injection.registerLazySingleton<CartLocalDataSource>(

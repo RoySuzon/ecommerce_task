@@ -8,3 +8,12 @@ sealed class HomeEvent extends Equatable {
 }
 
 class ProductsEvent extends HomeEvent {}
+
+class ProductSearchingEvent extends HomeEvent {
+  final String query;
+
+  const ProductSearchingEvent({required this.query});
+
+  @override
+  List<Object> get props => [query];
+}

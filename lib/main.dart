@@ -9,7 +9,6 @@ import 'package:ecommerce/features/cart/domain/usecases/add_to_cart.dart';
 import 'package:ecommerce/features/cart/domain/usecases/get_cart_items.dart';
 import 'package:ecommerce/features/cart/domain/usecases/remove_from_cart.dart';
 import 'package:ecommerce/features/cart/domain/usecases/update_cart_item_quantity.dart';
-import 'package:ecommerce/features/home/bloc/home_bloc.dart';
 import 'package:ecommerce/features/home/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,7 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Dependency.dependencyServicesLocator();
-  final SecureStorageService secureStorageService = Dependency.injection();
+  final TokenServices secureStorageService = Dependency.injection();
   final useCase = AuthUseCase(repo: Dependency.injection());
   final String? token = await secureStorageService.getToken();
   runApp(
@@ -39,7 +38,7 @@ void main() async {
             ),
           )..add(LoadCartEvent()),
         ),
-        BlocProvider(create: (context) => HomeBloc(Dependency.injection())),
+        // BlocProvider(create: (context) => HomeBloc(Dependency.injection())),
       ],
       child: MyApp(isLogin: token != null),
     ),

@@ -1,7 +1,10 @@
 // ignore_for_file: constant_identifier_names
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
+import 'package:ecommerce/core/error/app_exception.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -35,33 +38,42 @@ class HttpManager {
 
     http.Response response;
 
-    try {
-      switch (method) {
-        case HttpMethod.POST:
-          response = await http.post(
-            url,
-            body: body != null ? jsonEncode(body) : null,
-            headers: finalHeaders,
-          );
-          break;
-        case HttpMethod.GET:
-          response = await http.get(url, headers: finalHeaders);
-          break;
-        case HttpMethod.PUT:
-          response = await http.put(
-            url,
-            body: body != null ? jsonEncode(body) : null,
-            headers: finalHeaders,
-          );
-          break;
-        case HttpMethod.DELETE:
-          response = await http.delete(url, headers: finalHeaders);
-          break;
-      }
-    } catch (e) {
-      log("HTTP Request Failed: $e");
-      throw Exception("Network error occurred");
+    switch (method) {
+      case HttpMethod.POST:
+        response = await http
+            .post(
+              url,
+              body: body != null ? jsonEncode(body) : null,
+              headers: finalHeaders,
+            )
+            .timeout(Duration(seconds: 30));
+        break;
+      case HttpMethod.GET:
+        response = await http
+            .get(url, headers: finalHeaders)
+            .timeout(Duration(seconds: 30));
+        break;
+      case HttpMethod.PUT:
+        response = await http
+            .put(
+              url,
+              body: body != null ? jsonEncode(body) : null,
+              headers: finalHeaders,
+            )
+            .timeout(Duration(seconds: 30));
+        break;
+      case HttpMethod.DELETE:
+        response = await http
+            .delete(url, headers: finalHeaders)
+            .timeout(Duration(seconds: 30));
+        break;
     }
+
+    // on SocketException {
+    //   throw NoInternetException();
+    // } on TimeoutException {
+    //   throw RequestTimeoutException();
+    // }
 
     log("Response Status: ${response.statusCode}");
     if (response.statusCode == 200) {

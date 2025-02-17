@@ -16,7 +16,7 @@ class AddToCartEvent extends CartEvent {
   final ProductModel product;
   final int quantity;
 
-  const AddToCartEvent({required this.product, required this.quantity});
+  const AddToCartEvent({required this.product, this.quantity = 1});
 
   @override
   List<Object> get props => [product, quantity];
