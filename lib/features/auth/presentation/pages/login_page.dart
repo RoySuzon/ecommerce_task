@@ -124,11 +124,11 @@ class LoginPage extends StatelessWidget {
                                     },
                                     obscureText: state,
                                     decoration: InputDecoration(
-                                      suffix: IconButton(
-                                          onPressed: () {
+                                      suffix: InkWell(
+                                          onTap: () {
                                             obsecureBloc.toggleCheckbox();
                                           },
-                                          icon: Icon(state
+                                          child: Icon(state
                                               ? Icons.visibility
                                               : Icons.visibility_off)),
                                       label: Text('পাসওয়ার্ড'),

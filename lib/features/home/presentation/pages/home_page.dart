@@ -20,78 +20,67 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Card(
-            margin: EdgeInsets.zero,
-            child: CupertinoTextField(
-              placeholder: "Search by product name",
-              onChanged: (query) => context
-                  .read<HomeBloc>()
-                  .add(ProductSearchingEvent(query: query)),
-            ),
+        title: Card(
+          margin: EdgeInsets.zero,
+          child: CupertinoTextField(
+            placeholder: "Search by product name",
+            onChanged: (query) => context
+                .read<HomeBloc>()
+                .add(ProductSearchingEvent(query: query)),
           ),
         ),
-      ),
-      drawer: Drawer(
-        child: Column(
-          children: [
-            Spacer(),
-            BlocListener<AuthBloc, AuthState>(
-              listener: (context, state) {
-                if (state is LogoutSuccess) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
-                } else if (state is LogoutFaild) {
-                  ScaffoldMessenger.of(context)
-                    ..removeCurrentSnackBar()
-                    ..showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          state.failure.message,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleLarge!.copyWith(color: Colors.white),
-                        ),
-                        showCloseIcon: true,
-                        duration: Duration(seconds: 5),
-                        backgroundColor: Colors.red,
+        actions: [
+          BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state is LogoutSuccess) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+              } else if (state is LogoutFaild) {
+                ScaffoldMessenger.of(context)
+                  ..removeCurrentSnackBar()
+                  ..showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        state.failure.message,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleLarge!.copyWith(color: Colors.white),
                       ),
-                    );
-                }
-              },
-              child: ListTile(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text("Logout"),
-                      content: Text("Are you sure you want to log out?"),
-                      actions: [
-                        TextButton(
-                          onPressed: () =>
-                              Navigator.pop(context), // Close dialog
-                          child: Text("Cancel"),
-                        ),
-                        TextButton(
-                          onPressed: () =>
-                              context.read<AuthBloc>().add(AuthLogoutEvent()),
-                          child: Text("Logout",
-                              style: TextStyle(color: Colors.red)),
-                        ),
-                      ],
+                      showCloseIcon: true,
+                      duration: Duration(seconds: 5),
+                      backgroundColor: Colors.red,
                     ),
                   );
-                },
-                title: Text("Logout"),
-                trailing: Icon(Icons.logout),
-              ),
+              }
+            },
+            child: IconButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text("Logout"),
+                    content: Text("Are you sure you want to log out?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context), // Close dialog
+                        child: Text("Cancel"),
+                      ),
+                      TextButton(
+                        onPressed: () =>
+                            context.read<AuthBloc>().add(AuthLogoutEvent()),
+                        child:
+                            Text("Logout", style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              icon: Icon(Icons.logout),
             ),
-            SizedBox(height: kBottomNavigationBarHeight),
-          ],
-        ),
+          )
+        ],
       ),
       body: BlocConsumer<HomeBloc, HomeState>(
         bloc: context.read<HomeBloc>()..add(ProductsEvent()),
@@ -148,7 +137,7 @@ class HomePage extends StatelessWidget {
                       topLeft: Radius.circular(20),
                       topRight: Radius.circular(20),
                     ),
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 0),
@@ -158,10 +147,16 @@ class HomePage extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text("মোটঃ ৳${state.fold(
-                            0.0,
-                            (sum, item) => sum + item.totalCost,
-                          )}"),
+                          Text(
+                            "মোটঃ ৳${state.fold(
+                              0.0,
+                              (sum, item) => sum + item.totalCost,
+                            )}",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge!
+                                .copyWith(color: Colors.white),
+                          ),
                           ElevatedButton(
                             onPressed: () {
                               showCartItemsDialog(context);
