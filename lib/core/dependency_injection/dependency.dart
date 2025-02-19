@@ -1,6 +1,4 @@
 import 'package:ecommerce/core/dependency_injection/locator.dart';
-import 'package:ecommerce/features/cart/data/repository/cart_local_data_source_impl.dart';
-import 'package:ecommerce/features/cart/domain/repository/cart_local_data_source.dart';
 import 'package:flutter/foundation.dart'; // For kReleaseMode
 
 class Dependency {
@@ -11,12 +9,6 @@ class Dependency {
   static void dependencyServicesLocator() {
     injection.registerLazySingleton<TokenServices>(
       () => SecureStorageService(),
-    );
-    injection.registerLazySingleton<CartLocalDataSource>(
-      () => CartLocalDataSourceImpl(),
-    );
-    injection.registerLazySingleton<CartRepository>(
-      () => CartRepositoryImpl(injection()),
     );
 
     if (kReleaseMode) {

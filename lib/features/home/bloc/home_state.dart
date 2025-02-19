@@ -22,7 +22,7 @@ class ProductsLoading extends HomeState {
 }
 
 class ProductsLoaded extends HomeState {
-  final List<ProductModel> products;
+  final List<Product> products;
   const ProductsLoaded({required this.products});
   @override
   List<Object> get props => [products];

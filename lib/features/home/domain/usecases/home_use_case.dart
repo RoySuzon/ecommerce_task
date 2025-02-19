@@ -9,6 +9,6 @@ class HomeUseCase implements UseCase<Either, NoParams?> {
   final HomeRepository repo;
   HomeUseCase({required this.repo});
   @override
-  Future<Either<Failure, List<ProductModel>>> call([noParams]) async =>
+  Future<Either<Failure, List<Product>>> call([noParams]) async =>
       await repo.products();
 }

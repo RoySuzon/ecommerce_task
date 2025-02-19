@@ -13,6 +13,7 @@ class LoginPage extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController(text: "admin@gmail.com");
   final _passController = TextEditingController(text: "12345678");
+  final bloc = CheckboxCubit();
   // final bloc = AuthBloc(AuthRepositoryImp());
   LoginPage({super.key});
   @override
@@ -37,7 +38,9 @@ class LoginPage extends StatelessWidget {
                         SnackBar(
                           content: Text(
                             state.message,
-                            style: Theme.of(context).textTheme.titleLarge!
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge!
                                 .copyWith(color: Colors.white),
                           ),
                           showCloseIcon: true,
@@ -53,7 +56,9 @@ class LoginPage extends StatelessWidget {
                         SnackBar(
                           content: Text(
                             state.failure.message,
-                            style: Theme.of(context).textTheme.titleLarge!
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge!
                                 .copyWith(color: Colors.white),
                           ),
                           showCloseIcon: true,
@@ -77,7 +82,9 @@ class LoginPage extends StatelessWidget {
                       SizedBox(height: constraints.maxHeight * 0.1),
                       Text(
                         "প্রবেশ করুন",
-                        style: Theme.of(context).textTheme.headlineSmall!
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall!
                             .copyWith(fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: constraints.maxHeight * 0.05),
@@ -123,9 +130,16 @@ class LoginPage extends StatelessWidget {
                             const SizedBox(height: 16.0),
                             Row(
                               children: [
-                                Checkbox.adaptive(
-                                  value: true,
-                                  onChanged: (value) {},
+                                BlocBuilder<CheckboxCubit, bool>(
+                                  bloc: bloc,
+                                  builder: (context, state) {
+                                    return Checkbox.adaptive(
+                                      value: state,
+                                      onChanged: (value) {
+                                        bloc.setCheckbox(value!);
+                                      },
+                                    );
+                                  },
                                 ),
                                 Text.rich(
                                   TextSpan(
@@ -141,31 +155,38 @@ class LoginPage extends StatelessWidget {
                                             .textTheme
                                             .titleSmall!
                                             .copyWith(color: Color(0xFF00BF6D)),
-                                        recognizer:
-                                            TapGestureRecognizer()
-                                              ..onTap = () {
-                                                ('সকল শর্তাবলি');
-                                              },
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () {
+                                            ('সকল শর্তাবলি');
+                                          },
                                       ),
                                     ],
                                   ),
                                   style: Theme.of(
                                     context,
                                   ).textTheme.bodyMedium!.copyWith(
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge!
-                                        .color!
-                                        .withOpacity(0.64),
-                                  ),
+                                        color: Theme.of(context)
+                                            .textTheme
+                                            .bodyLarge!
+                                            .color!
+                                            .withOpacity(0.64),
+                                      ),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 16.0),
-                            CustomButton(
-                              onTap: () async => await login(context),
-                              title: "সাইন ইন করুন",
-                              isLoading: state is LoginLoading,
+                            BlocBuilder<CheckboxCubit, bool>(
+                              bloc: bloc,
+                              builder: (context, state) {
+
+                                return CustomButton(
+                                  onTap: bloc.state
+                                      ? () async => await login(context)
+                                      : null,
+                                  title: "সাইন ইন করুন",
+                                  isLoading: state is LoginLoading,
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -187,9 +208,20 @@ class LoginPage extends StatelessWidget {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       context.read<AuthBloc>().add(
-        AuthLoginEvent(email: email, passaword: passaword),
-      );
+            AuthLoginEvent(email: email, passaword: passaword),
+          );
       // Navigate to the main screen
     }
+  }
+}
+
+class CheckboxCubit extends Cubit<bool> {
+  CheckboxCubit() : super(false);
+  void toggleCheckbox() {
+    emit(!state);
+  }
+
+  void setCheckbox(bool value) {
+    emit(value);
   }
 }

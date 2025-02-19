@@ -6,7 +6,7 @@ import 'package:ecommerce/features/home/bloc/home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final HomeUseCase repo;
-  List<ProductModel> finalProducts = [];
+  List<Product> finalProducts = [];
   HomeBloc(this.repo) : super(HomeInitial()) {
     on<ProductsEvent>((event, emit) async {
       emit(ProductsLoading());
@@ -19,7 +19,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     });
     on<ProductSearchingEvent>((event, emit) async {
       emit(ProductsLoading());
-      List<ProductModel> products = finalProducts
+      List<Product> products = finalProducts
           .where(
               (e) => e.name!.toLowerCase().contains(event.query.toLowerCase()))
           .toList();

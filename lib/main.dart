@@ -3,12 +3,7 @@ import 'package:ecommerce/core/services/secure_storage.dart';
 import 'package:ecommerce/features/auth/bloc/auth_bloc.dart';
 import 'package:ecommerce/features/auth/domain/usecases/auth_use_case.dart';
 import 'package:ecommerce/features/auth/presentation/pages/login_page.dart';
-import 'package:ecommerce/features/cart/bloc/cart_bloc.dart';
-import 'package:ecommerce/features/cart/bloc/cart_event.dart';
-import 'package:ecommerce/features/cart/domain/usecases/add_to_cart.dart';
-import 'package:ecommerce/features/cart/domain/usecases/get_cart_items.dart';
-import 'package:ecommerce/features/cart/domain/usecases/remove_from_cart.dart';
-import 'package:ecommerce/features/cart/domain/usecases/update_cart_item_quantity.dart';
+import 'package:ecommerce/features/cart/cubit/cart_cubit.dart';
 import 'package:ecommerce/features/home/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,17 +23,7 @@ void main() async {
             secureStorageService: secureStorageService,
           ),
         ),
-        BlocProvider(
-          create: (context) => CartBloc(
-            addToCart: AddToCart(Dependency.injection()),
-            removeFromCart: RemoveFromCart(Dependency.injection()),
-            getCartItems: GetCartItems(Dependency.injection()),
-            updateCartItemQuantity: UpdateCartItemQuantity(
-              repository: Dependency.injection(),
-            ),
-          )..add(LoadCartEvent()),
-        ),
-        // BlocProvider(create: (context) => HomeBloc(Dependency.injection())),
+        BlocProvider(create: (context) => CartCubit()),
       ],
       child: MyApp(isLogin: token != null),
     ),
@@ -56,7 +41,9 @@ class MyApp extends StatelessWidget {
       title: 'Ecommerce',
       theme: ThemeData(
         useMaterial3: false,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, ),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+        ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Color(0xFFFCF5F5),

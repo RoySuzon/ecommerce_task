@@ -3,5 +3,5 @@ import 'package:ecommerce/core/error/failure.dart';
 import 'package:ecommerce/features/home/data/models/product_model.dart';
 
 abstract class HomeRepository {
-  Future<Either<Failure, List<ProductModel>>> products();
+  Future<Either<Failure, List<Product>>> products();
 }

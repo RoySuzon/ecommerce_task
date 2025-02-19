@@ -10,7 +10,7 @@ import 'package:ecommerce/features/home/domain/repository/home_repository.dart';
 class HomeRepositoryImp implements HomeRepository {
   final HttpManager _httpManager = HttpManager();
   @override
-  Future<Either<Failure, List<ProductModel>>> products() async {
+  Future<Either<Failure, List<Product>>> products() async {
     try {
       final response = await _httpManager.request(
         HttpMethod.GET,
