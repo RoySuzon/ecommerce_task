@@ -13,7 +13,8 @@ class LoginPage extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController(text: "admin@gmail.com");
   final _passController = TextEditingController(text: "12345678");
-  final bloc = CheckboxCubit();
+  final checkBoxBloc = CheckboxCubit();
+  final obsecureBloc = ObSecureCubit();
   // final bloc = AuthBloc(AuthRepositoryImp());
   LoginPage({super.key});
   @override
@@ -110,20 +111,32 @@ class LoginPage extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                 vertical: 16.0,
                               ),
-                              child: TextFormField(
-                                controller: _passController,
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return "অনুগ্রহ করে আপনার পাসওয়ার্ড প্রবেশ করুন!";
-                                  }
-                                  return null;
-                                },
-                                obscureText: true,
-                                decoration: const InputDecoration(
-                                  label: Text('পাসওয়ার্ড'),
-                                ),
-                                onSaved: (passaword) {
-                                  // Save it
+                              child: BlocBuilder<ObSecureCubit, bool>(
+                                bloc: obsecureBloc,
+                                builder: (context, state) {
+                                  return TextFormField(
+                                    controller: _passController,
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return "অনুগ্রহ করে আপনার পাসওয়ার্ড প্রবেশ করুন!";
+                                      }
+                                      return null;
+                                    },
+                                    obscureText: state,
+                                    decoration: InputDecoration(
+                                      suffix: IconButton(
+                                          onPressed: () {
+                                            obsecureBloc.toggleCheckbox();
+                                          },
+                                          icon: Icon(state
+                                              ? Icons.visibility
+                                              : Icons.visibility_off)),
+                                      label: Text('পাসওয়ার্ড'),
+                                    ),
+                                    onSaved: (passaword) {
+                                      // Save it
+                                    },
+                                  );
                                 },
                               ),
                             ),
@@ -131,12 +144,12 @@ class LoginPage extends StatelessWidget {
                             Row(
                               children: [
                                 BlocBuilder<CheckboxCubit, bool>(
-                                  bloc: bloc,
+                                  bloc: checkBoxBloc,
                                   builder: (context, state) {
                                     return Checkbox.adaptive(
                                       value: state,
                                       onChanged: (value) {
-                                        bloc.setCheckbox(value!);
+                                        checkBoxBloc.setCheckbox(value!);
                                       },
                                     );
                                   },
@@ -176,11 +189,10 @@ class LoginPage extends StatelessWidget {
                             ),
                             const SizedBox(height: 16.0),
                             BlocBuilder<CheckboxCubit, bool>(
-                              bloc: bloc,
+                              bloc: checkBoxBloc,
                               builder: (context, state) {
-
                                 return CustomButton(
-                                  onTap: bloc.state
+                                  onTap: checkBoxBloc.state
                                       ? () async => await login(context)
                                       : null,
                                   title: "সাইন ইন করুন",
@@ -223,5 +235,12 @@ class CheckboxCubit extends Cubit<bool> {
 
   void setCheckbox(bool value) {
     emit(value);
+  }
+}
+
+class ObSecureCubit extends Cubit<bool> {
+  ObSecureCubit() : super(true);
+  void toggleCheckbox() {
+    emit(!state);
   }
 }

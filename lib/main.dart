@@ -4,6 +4,8 @@ import 'package:ecommerce/features/auth/bloc/auth_bloc.dart';
 import 'package:ecommerce/features/auth/domain/usecases/auth_use_case.dart';
 import 'package:ecommerce/features/auth/presentation/pages/login_page.dart';
 import 'package:ecommerce/features/cart/cubit/cart_cubit.dart';
+import 'package:ecommerce/features/home/bloc/home_bloc.dart';
+import 'package:ecommerce/features/home/domain/usecases/home_use_case.dart';
 import 'package:ecommerce/features/home/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,6 +26,7 @@ void main() async {
           ),
         ),
         BlocProvider(create: (context) => CartCubit()),
+        BlocProvider(create: (context) => HomeBloc(HomeUseCase(repo: Dependency.injection()))),
       ],
       child: MyApp(isLogin: token != null),
     ),

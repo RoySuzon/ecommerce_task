@@ -51,3 +51,7 @@ class CartCubit extends Cubit<List<CartItem>> {
         0, (total, item) => total + (item.product.price * item.quantity));
   }
 }
+
+class CartState {
+  
+}
