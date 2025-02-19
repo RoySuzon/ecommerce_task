@@ -21,7 +21,7 @@ class CustomButton extends StatelessWidget {
         // backgroundColor: const Color(0xFFBF0000),
         // foregroundColor: Colors.white,
         minimumSize: const Size(double.infinity, 48),
-        shape: const StadiumBorder(),
+        // shape: const StadiumBorder(),
       ),
       child: isLoading
           ? Center(child: CupertinoActivityIndicator())

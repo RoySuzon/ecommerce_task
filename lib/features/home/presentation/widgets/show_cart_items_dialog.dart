@@ -20,20 +20,22 @@ void showCartItemsDialog(BuildContext context) {
                   children: [
                     ...List.generate(state.length, (index) {
                       CartItem item = state[index];
-                      return Card(
-                        child: ListTile(
-                          leading: InkWell(
-                            onTap: () =>
-                                context.read<CartCubit>().removeFromCart(item),
-                            child: Icon(Icons.delete),
-                          ),
-                          title: Text(
-                              "${item.product.name ?? ""} ${item.quantity}x ৳${item.product.price}"),
-                          subtitle: Text(
-                            "Subtotal: ৳${item.totalCost.toStringAsFixed(2)}",
-                          ),
-                          onTap: () => showCartItemDialog(context, item),
+                      return ListTile(
+                        trailing: InkWell(
+                          onTap: () {
+                            context.read<CartCubit>().removeFromCart(item);
+                            if (state.isEmpty) {
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: Icon(Icons.delete),
                         ),
+                        title: Text(
+                            "${item.product.name ?? ""} ${item.quantity}x ৳${item.product.price}"),
+                        subtitle: Text(
+                          "Subtotal: ৳${item.totalCost.toStringAsFixed(2)}",
+                        ),
+                        onTap: () => showCartItemDialog(context, item),
                       );
                     }),
                   ],
@@ -47,8 +49,20 @@ void showCartItemsDialog(BuildContext context) {
                 child: Text('Cancel'),
               ),
               ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('OK'),
+                onPressed: () {
+                  ScaffoldMessenger.of(context)
+                    ..removeCurrentSnackBar()
+                    ..showSnackBar(
+                      SnackBar(
+                        content: Text('Order placed successfully'),
+                        backgroundColor: Colors.green,
+                        duration: Duration(seconds: 5),
+                      ),
+                    );
+                  context.read<CartCubit>().clearCart();
+                  Navigator.pop(context);
+                },
+                child: Text('Order Now'),
               ),
             ],
           );
