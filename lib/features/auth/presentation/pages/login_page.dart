@@ -11,8 +11,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginPage extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: "admin@gmail.com");
-  final _passController = TextEditingController(text: "12345678");
+  final _emailController = TextEditingController();
+  final _passController = TextEditingController();
   final checkBoxBloc = CheckboxCubit();
   final obsecureBloc = ObSecureCubit();
   // final bloc = AuthBloc(AuthRepositoryImp());
